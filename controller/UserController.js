@@ -1,12 +1,14 @@
 const bcrypt = require("bcrypt")
 const dotenv = require('dotenv')
-
+const jwt = require('jsonwebtoken');
 const SignUpModel =require('../model/SignUpModel')
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const Token = require('../model/Token')
 const { generateAccessToken, generateRefreshToken } = require('./auth/Auth');
 dotenv.config();
 
+const REFRESH_SECRET_KEY="a60327222ffaa884573490fc0574d69f3f5d1925a98479fb4ef184ebc99fab84cbb9edcc41434b58a07b66188a75152916ed7b46b2031afa5b5c0f046cacb726"
 
 
 
@@ -112,14 +114,41 @@ const verifyOtp = async (req, res) => {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
-        res.json({ accessToken, refreshToken, msg: 'OTP verified, tokens issued' });
+        const saveToken = new Token({ token: refreshToken, userId: user._id });
+        await saveToken.save();
+
+
+        res.json({ accessToken, refreshToken, });
 
     } catch (error) {
         res.status(500).json({ msg: "Error during OTP verification" });
     }
 };
 
+const refreshAccessToken = async (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(401).json({ msg: "Refresh token required" });
+
+    try {
+        
+        const tokenInDb = await Token.findOne({ token: refreshToken });
+        if (!tokenInDb) return res.status(403).json({ msg: "Invalid refresh token" });
+        console.log('token find')
+
+        const decoded = jwt.verify(refreshToken,REFRESH_SECRET_KEY);
+        console.log('token verify')
+        const accessToken = generateAccessToken(decoded);
+
+        
+        res.status(200).json({ token: accessToken });
+        console.log("Token verified and access token generated");
+
+    } catch (error) {
+        res.status(500).json({ msg: "Error refreshing token" });
+    }
+};
 
 
 
-module.exports={signInUser,signUpUser,verifyOtp}
+
+module.exports={signInUser,signUpUser,verifyOtp,refreshAccessToken}
