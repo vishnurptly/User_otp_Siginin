@@ -6,13 +6,13 @@ const passport = require("passport");
 });
 
  const  googleCallback = passport.authenticate("google", {
-  failureRedirect: "/login",
-  successRedirect: "/",
+  failureRedirect: "http://localhost:5173",
+  successRedirect: "http://localhost:5173/home",
 });
-
+  
   const logout = (req, res) => {
   req.logout();
-  res.redirect("/");
+  res.redirect("http://localhost:5173/home");
 };
 
 module.exports={googleLogin,googleCallback,logout}
