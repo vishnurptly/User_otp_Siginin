@@ -3,7 +3,7 @@ import axios from 'axios'
 const Login = () => {
     const googleapicalling =()=>{
         
-        window.location.href = "http://localhost:5000/auth/google/callback","_self";
+        window.location.href = "http://localhost:5000/auth/google";
       }
   return (
     <div>

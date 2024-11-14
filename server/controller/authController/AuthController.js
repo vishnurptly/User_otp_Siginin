@@ -10,9 +10,6 @@ const passport = require("passport");
   successRedirect: "http://localhost:5173/home",
 });
   
-  const logout = (req, res) => {
-  req.logout();
-  res.redirect("http://localhost:5173/home");
-};
+  
 
-module.exports={googleLogin,googleCallback,logout}
+module.exports={googleLogin,googleCallback}
